@@ -1,7 +1,7 @@
 # Graph Report - object-detection  (2026-06-19)
 
 ## Corpus Check
-- 75 files · ~131,816 words
+- 75 files · ~131,721 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary

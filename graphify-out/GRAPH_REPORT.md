@@ -1,7 +1,7 @@
 # Graph Report - object-detection  (2026-06-19)
 
 ## Corpus Check
-- 75 files · ~136,547 words
+- 75 files · ~131,816 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -55,12 +55,12 @@
   yolov5\benchmarks.py → yolov5\models\yolo.py
 - `Executes a test run if `opt.test` is True, otherwise starts training or inferenc` --uses--> `SegmentationModel`  [INFERRED]
   yolov5\benchmarks.py → yolov5\models\yolo.py
-- `Context manager ensuring ordered operations in distributed training by making al` --uses--> `Classify`  [INFERRED]
-  yolov5\utils\torch_utils.py → yolov5\models\common.py
-- `Selects computing device (CPU, CUDA GPU, MPS) for YOLOv5 model deployment, loggi` --uses--> `Classify`  [INFERRED]
-  yolov5\utils\torch_utils.py → yolov5\models\common.py
-- `Fuses Conv2d and BatchNorm2d layers into a single Conv2d layer.      See https` --uses--> `Classify`  [INFERRED]
-  yolov5\utils\torch_utils.py → yolov5\models\common.py
+- `Classify` --uses--> `Context manager ensuring ordered operations in distributed training by making al`  [INFERRED]
+  yolov5\models\common.py → yolov5\utils\torch_utils.py
+- `Classify` --uses--> `Selects computing device (CPU, CUDA GPU, MPS) for YOLOv5 model deployment, loggi`  [INFERRED]
+  yolov5\models\common.py → yolov5\utils\torch_utils.py
+- `Classify` --uses--> `Fuses Conv2d and BatchNorm2d layers into a single Conv2d layer.      See https`  [INFERRED]
+  yolov5\models\common.py → yolov5\utils\torch_utils.py
 
 ## Communities
 

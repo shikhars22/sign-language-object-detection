@@ -1,4 +1,4 @@
-import os,sys
+import os, sys, zipfile, shutil
 import yaml
 from signLanguage.utils.main_utils import read_yaml_file
 from signLanguage.logger import logging
@@ -22,8 +22,10 @@ class ModelTrainer:
 
         try:
             logging.info("Unzipping data")
-            os.system("unzip Sign_language_data.zip")
-            os.system("rm Sign_language_data.zip")
+            if os.path.exists("Sign_language_data.zip"):
+                with zipfile.ZipFile("Sign_language_data.zip", "r") as zip_ref:
+                    zip_ref.extractall(".")
+                os.remove("Sign_language_data.zip")
 
             with open("data.yaml", 'r') as stream:
                 num_classes = str(yaml.safe_load(stream)['nc'])
@@ -39,15 +41,17 @@ class ModelTrainer:
             with open(f'yolov5/models/custom_{model_config_file_name}.yaml', 'w') as f:
                 yaml.dump(config, f)
 
-            os.system(f"cd yolov5/ && python train.py --img 416 --batch {self.model_trainer_config.batch_size} --epochs {self.model_trainer_config.no_epochs} --data ../data.yaml --cfg ./models/custom_yolov5s.yaml --weights {self.model_trainer_config.weight_name} --name yolov5s_results  --cache")
-            os.system("cp yolov5/runs/train/yolov5s_results/weights/best.pt yolov5/")
+            os.system(f'cd yolov5 && "{sys.executable}" train.py --img 416 --batch {self.model_trainer_config.batch_size} --epochs {self.model_trainer_config.no_epochs} --data ../data.yaml --cfg ./models/custom_yolov5s.yaml --weights {self.model_trainer_config.weight_name} --name yolov5s_results  --cache')
+            
+            shutil.copy("yolov5/runs/train/yolov5s_results/weights/best.pt", "yolov5/")
             os.makedirs(self.model_trainer_config.model_trainer_dir, exist_ok=True)
-            os.system(f"cp yolov5/runs/train/yolov5s_results/weights/best.pt {self.model_trainer_config.model_trainer_dir}/")
+            shutil.copy("yolov5/runs/train/yolov5s_results/weights/best.pt", f"{self.model_trainer_config.model_trainer_dir}/")
            
-            os.system("rm -rf yolov5/runs")
-            os.system("rm -rf train")
-            os.system("rm -rf test")
-            os.system("rm -rf data.yaml")
+            for folder in ["yolov5/runs", "train", "test"]:
+                if os.path.exists(folder):
+                    shutil.rmtree(folder)
+            if os.path.exists("data.yaml"):
+                os.remove("data.yaml")
 
             model_trainer_artifact = ModelTrainerArtifact(
                 trained_model_file_path="yolov5/best.pt",

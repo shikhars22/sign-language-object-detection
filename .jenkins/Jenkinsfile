@@ -3,8 +3,6 @@ pipeline {
   environment {
     ECR_REPOSITORY = credentials('ECR_REPOSITORY')
     AWS_ACCOUNT_ID = credentials('AWS_ACCOUNT_ID')
-    AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
-    AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
   }
   
   stages {
@@ -47,7 +45,7 @@ pipeline {
     stage('Continuous Deployment') {
       steps {
         sshagent(['ssh_key']) {
-          sh "ssh -o StrictHostKeyChecking=no -l ubuntu 54.80.194.59 'cd /home/ubuntu/ && wget https://raw.githubusercontent.com/entbappy/End-to-end-Object-Detection-Project/main/docker-compose.yml && export IMAGE_NAME=${ECR_REPOSITORY}:latest && aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com && docker compose up -d '"
+          sh "ssh -o StrictHostKeyChecking=no -l ubuntu 54.80.194.59 'cd /home/ubuntu/ && wget https://raw.githubusercontent.com/shikhars22/sign-language-object-detection/refs/heads/main/docker-compose.yml && export IMAGE_NAME=${ECR_REPOSITORY}:latest && aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com && docker compose up -d '"
         }
       }
     }

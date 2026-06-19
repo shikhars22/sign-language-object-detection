@@ -1,4 +1,4 @@
-import sys, os
+import sys, os, shutil
 from signLanguage.pipeline.training_pipeline import TrainPipeline
 from signLanguage.exception import SignException
 from signLanguage.utils.main_utils import decodeImage, encodeImageIntoBase64
@@ -38,11 +38,12 @@ def predictRoute():
         image = request.json['image']
         decodeImage(image, clApp.filename)
 
-        os.system("cd yolov5/ && python detect.py --weights my_model.pt --img 416 --conf 0.5 --source ../data/inputImage.jpg")
+        os.system(f'cd yolov5 && "{sys.executable}" detect.py --weights my_model.pt --img 416 --conf 0.5 --source ../data/inputImage.jpg')
 
         opencodedbase64 = encodeImageIntoBase64("yolov5/runs/detect/exp/inputImage.jpg")
         result = {"image": opencodedbase64.decode('utf-8')}
-        os.system("rm -rf yolov5/runs")
+        if os.path.exists("yolov5/runs"):
+            shutil.rmtree("yolov5/runs")
 
     except ValueError as val:
         print(val)
@@ -62,8 +63,9 @@ def predictRoute():
 @cross_origin()
 def predictLive():
     try:
-        os.system("cd yolov5/ && python detect.py --weights my_model.pt --img 416 --conf 0.5 --source 0")
-        os.system("rm -rf yolov5/runs")
+        os.system(f'cd yolov5 && "{sys.executable}" detect.py --weights my_model.pt --img 416 --conf 0.5 --source 0')
+        if os.path.exists("yolov5/runs"):
+            shutil.rmtree("yolov5/runs")
         return "Camera starting!!" 
 
     except ValueError as val:

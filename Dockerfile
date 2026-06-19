@@ -18,4 +18,7 @@ RUN pip install -r requirements.txt
 # Copy the rest of the application code
 COPY . /app
 
+# Install the local package in editable mode (runs instantly)
+RUN pip install -e .
+
 CMD ["python3", "app.py"]

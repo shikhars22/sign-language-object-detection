@@ -83,11 +83,11 @@ Instead of configuring raw AWS Access Keys on the server, configure an IAM Role 
 ### Step 3: Transfer and Run Setup Script
 1. Transfer the setup script from your local machine to the EC2 server:
    ```bash
-   scp -i awsSupportDocs/rsa-key-skg-mlFlow.pem scripts/jenkins.sh ubuntu@35.154.119.124:~/
+   scp -i awsSupportDocs/rsa-key-skg-mlFlow.pem scripts/jenkins.sh ubuntu@13.207.234.221:~/
    ```
 2. SSH into your EC2 instance:
    ```bash
-   ssh -i awsSupportDocs/rsa-key-skg-mlFlow.pem ubuntu@35.154.119.124
+   ssh -i awsSupportDocs/rsa-key-skg-mlFlow.pem ubuntu@13.207.234.221
    ```
 3. Convert Windows line endings (`CRLF`) to Unix format (`LF`) to prevent interpreter errors:
    ```bash

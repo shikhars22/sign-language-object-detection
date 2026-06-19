@@ -201,3 +201,14 @@ docker run hello-world
 * **Build with Parameters:** For all subsequent builds, you will see a **Build with Parameters** option. 
   * You can input any target server IP (defaults to `3.109.110.109`).
   * Jenkins will automatically SSH into that machine, fetch the latest `docker-compose.yml`, authenticate to ECR, and launch the application container on port 80.
+
+#### 3. Accessing the Live Webcam Stream (Insecure Origin Bypass)
+Modern web browsers block the `getUserMedia` API (webcam access) on insecure HTTP contexts (such as raw IP addresses). The webcam feature will only function on `localhost` or over secure `HTTPS` by default.
+
+To bypass this restriction for local testing on your EC2 instance's IP:
+1. Open Google Chrome.
+2. In the address bar, navigate to: `chrome://flags/#unsafely-treat-insecure-origin-as-secure`
+3. Locate the **Insecure origins treated as secure** setting and change it to **Enabled**.
+4. In the text area below, paste the IP address of your EC2 target server (e.g., `http://3.109.110.109`).
+5. Click **Relaunch** at the bottom of the page to apply settings.
+6. Navigating to `http://3.109.110.109/` will now allow the page to request and stream your local webcam feed.

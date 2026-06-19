@@ -59,6 +59,8 @@ python app.py
 
 ## Deployment & Jenkins Setup
 
+![Deployment Architecture](flowchart/deployment_architecture.png)
+
 Follow these steps to deploy this project on an AWS EC2 instance using Jenkins and AWS services:
 
 ### Step 1: Provision EC2 Instance

@@ -1,10 +1,12 @@
 pipeline {
   agent any
+  parameters {
+    string(name: 'DEPLOY_HOST', defaultValue: '3.109.110.109', description: 'Target EC2 host IP for deployment')
+  }
   environment {
     ECR_REPOSITORY = credentials('ECR_REPOSITORY')
     AWS_ACCOUNT_ID = credentials('AWS_ACCOUNT_ID')
     AWS_REGION = 'ap-south-1'
-    DEPLOY_HOST = '13.207.234.221'
   }
   
   stages {
@@ -47,7 +49,7 @@ pipeline {
     stage('Continuous Deployment') {
       steps {
         sshagent(['ssh_key']) {
-          sh "ssh -o StrictHostKeyChecking=no -l ubuntu \${DEPLOY_HOST} 'cd /home/ubuntu/ && wget -O docker-compose.yml https://raw.githubusercontent.com/shikhars22/sign-language-object-detection/refs/heads/main/docker-compose.yml && export IMAGE_NAME=${ECR_REPOSITORY}:latest && aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com && docker compose up -d '"
+          sh "ssh -o StrictHostKeyChecking=no -l ubuntu ${params.DEPLOY_HOST} 'cd /home/ubuntu/ && wget -O docker-compose.yml https://raw.githubusercontent.com/shikhars22/sign-language-object-detection/refs/heads/main/docker-compose.yml && export IMAGE_NAME=${ECR_REPOSITORY}:latest && aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com && docker compose up -d '"
         }
       }
     }
@@ -58,4 +60,4 @@ pipeline {
       sh 'docker image prune -f'
     }
   }
-}
+}

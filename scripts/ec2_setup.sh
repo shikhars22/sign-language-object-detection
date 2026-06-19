@@ -1,26 +1,18 @@
-#!bin/bash
+#!/bin/bash
 
-sudo apt update 
+# Update package lists and upgrade system packages
+sudo apt-get update && sudo apt-get upgrade -y
 
-sudo apt-get update 
-
-sudo apt upgrade -y
-
+# Install Docker
 curl -fsSL https://get.docker.com -o get-docker.sh
-
 sudo sh get-docker.sh
+rm get-docker.sh
 
+# Add ubuntu user to docker group
 sudo usermod -aG docker $USER
 
-newgrp docker
+# Install AWS CLI
+sudo apt-get install -y awscli
 
-sudo apt install awscli -y
-
-
-
-## AWS configuration
-
-aws configure
-
-
-## Now setup elastic IP on AWS
+# Configure default AWS Region (Non-interactive)
+aws configure set default.region ap-south-1

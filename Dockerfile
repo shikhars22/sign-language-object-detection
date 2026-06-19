@@ -3,7 +3,7 @@ FROM python:3.11-slim
 # Suppress the pip root user warning
 ENV PIP_ROOT_USER_ACTION=ignore
 
-RUN apt update -y && apt install -y awscli libgl1-mesa-glx libglib2.0-0
+RUN apt update -y && apt install -y awscli libgl1 libglib2.0-0
 WORKDIR /app
 
 # Copy requirements.txt first to leverage Docker layer caching

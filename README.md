@@ -59,7 +59,11 @@ python app.py
 
 ## Deployment & Jenkins Setup
 
+### High-Level Architecture
 ![Deployment Architecture](flowchart/deployment_architecture.png)
+
+### Conceptual Flow
+![Conceptual Flow Sketch](flowchart/hand_drawn_architecture.png)
 
 Follow these steps to deploy this project on an AWS EC2 instance using Jenkins and AWS services:
 

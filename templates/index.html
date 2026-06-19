@@ -206,10 +206,13 @@
 
 	  
 	<form class="input-group upload-data row">	
-		<div class="col-xl-6 col-md-6 col-sm-6">
-		<button type="button" class="btn btn-primary col-12" id="uload">Upload</button>
+		<div class="col-xl-4 col-md-4 col-sm-4">
+			<button type="button" class="btn btn-primary col-12" id="uload">Upload</button>
 		</div>
-		<div class="col-xl-6 col-md-6 col-sm-6">
+		<div class="col-xl-4 col-md-4 col-sm-4">
+			<button type="button" class="btn btn-info col-12" id="webcam">Start Webcam</button>
+		</div>
+		<div class="col-xl-4 col-md-4 col-sm-4">
 			<button id="send" type="button" class="btn btn-success col-12">Predict</button>
 		</div>
 
@@ -263,11 +266,12 @@
 	</script>
 
 	<script>
-		var mybtn = document.getElementById('startbtn');
 		var myvideo = document.getElementById('video');
 		var mycanvas = document.getElementById('canvas');
 		var myphoto = document.getElementById('photo');
 		var base_data = "";
+		var localstream = null;
+		var webcamInterval = null;
 
 		function sendRequest(base64Data) {
 			var type = "json";
@@ -299,9 +303,7 @@
 							$(".res-part").html("");
 							$(".res-part2").html("");
 							var imageData = res.image;
-							$(".res-part2").append("<img class='resp-img' src='data:image/jpeg;base64," +
-								imageData + "' alt='' />");
-							// $(".res-part").html("<pre>" + JSON.stringify(res[0], undefined, 2) + "</pre>");
+							$(".res-part2").append("<div class='card-body text-center'><h5 class='card-title mb-2'>Prediction Results</h5><img class='resp-img' src='data:image/jpeg;base64," + imageData + "' alt='' /></div>");
 							$("#loading").hide();
 						}
 					});
@@ -309,16 +311,86 @@
 			}
 		}
 
+		function sendWebcamFrame(base64Data) {
+			if (!base64Data) return;
+			var url = $("#url").val();
+			$.ajax({
+				url: url,
+				type: "post",
+				cache: false,
+				async: true,
+				crossDomain: true,
+				headers: {
+					'Content-Type': 'application/json',
+					'Access-Control-Allow-Origin': '*'
+				},
+				data: JSON.stringify({
+					image: base64Data
+				}),
+				success: function (res) {
+					if (res && res.image) {
+						$(".res-part2").html("<div class='card-body text-center'><h5 class='card-title mb-2'>Prediction Results</h5><img class='resp-img' src='data:image/jpeg;base64," + res.image + "' alt='' /></div>");
+					}
+				}
+			});
+		}
+
 		$(document).ready(function () {
 			$("#loading").hide();
+			$('#video').hide();
 
 			$('#send').click(function (evt) {
 				sendRequest(base_data);
 			});
 
 			$('#uload').click(function (evt) {
+				// Stop webcam if running
+				if (webcamInterval) {
+					$('#webcam').click();
+				}
 				$('#fileinput').focus().trigger('click');
 			});
+
+			$('#webcam').click(function () {
+				if (webcamInterval) {
+					// Stop webcam
+					clearInterval(webcamInterval);
+					webcamInterval = null;
+					if (localstream) {
+						localstream.getTracks().forEach(track => track.stop());
+					}
+					$('#video').hide();
+					$('#photo').show();
+					$(this).text("Start Webcam").removeClass("btn-danger").addClass("btn-info");
+				} else {
+					// Start webcam
+					if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+						navigator.mediaDevices.getUserMedia({ video: true }).then(function (stream) {
+							localstream = stream;
+							myvideo.srcObject = stream;
+							myvideo.play();
+							$('#photo').hide();
+							$('#video').show();
+							$('#webcam').text("Stop Webcam").removeClass("btn-info").addClass("btn-danger");
+							
+							// Send frames for prediction every 1.5 seconds to avoid overloading CPU
+							webcamInterval = setInterval(function () {
+								var context = mycanvas.getContext('2d');
+								mycanvas.width = myvideo.videoWidth || 300;
+								mycanvas.height = myvideo.videoHeight || 300;
+								context.drawImage(myvideo, 0, 0, mycanvas.width, mycanvas.height);
+								var dataURL = mycanvas.toDataURL('image/jpeg', 0.8).replace(/^data:image.+;base64,/, '');
+								sendWebcamFrame(dataURL);
+							}, 1500);
+						}).catch(function (err) {
+							alert("Cannot access webcam: " + err);
+						});
+					} else {
+						alert("Webcam not supported by your browser");
+					}
+				}
+			});
+
 			$("#fileinput").change(function () {
 				if (this.files && this.files[0]) {
 					var reader = new FileReader();

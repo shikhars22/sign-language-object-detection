@@ -152,6 +152,46 @@ Navigate to **Manage Jenkins -> Credentials -> System -> Global credentials (unr
    * **Script Path:** `.jenkins/Jenkinsfile`
 4. Click **Save**.
 
+### Step 9: Deploying to a Separate Target EC2 Instance (Production)
 
+To scale application capacity and separate build processes from deployment environments, the application is deployed to a dedicated target EC2 instance:
 
+* **Target Server Name:** `sign-detection-target-server`
+* **Elastic IP:** `3.109.110.109`
+* **Instance Type:** `t2.large` (32 GB Storage)
+* **IAM Instance Profile:** `EC2-Jenkins-MLOps-Role` (same as Jenkins server)
+* **Security Group Inbound Rules:**
+  * Allow SSH (Port 22) from everywhere (or from the Jenkins server IP).
+  * Allow HTTP (Port 80) from everywhere (to serve users and webcam client).
 
+#### 1. Transfer and Run the Target Server Setup Script
+On your local machine, run the SCP command to copy the setup script:
+```bash
+scp -i awsSupportDocs/rsa-key-skg-mlFlow.pem scripts/ec2_setup.sh ubuntu@3.109.110.109:~/
+```
+
+Next, SSH into the new target EC2 instance and run the setup script:
+```bash
+# SSH into the target instance
+ssh -i awsSupportDocs/rsa-key-skg-mlFlow.pem ubuntu@3.109.110.109
+
+# Convert Windows line endings (CRLF) to Unix format (LF) to prevent interpreter errors
+sed -i 's/\r$//' ec2_setup.sh
+
+# Make the script executable and run it
+chmod +x ec2_setup.sh
+./ec2_setup.sh
+
+# Exit and reconnect to apply the docker group changes
+exit
+ssh -i awsSupportDocs/rsa-key-skg-mlFlow.pem ubuntu@3.109.110.109
+
+# Verify Docker works without sudo
+docker run hello-world
+```
+
+#### 2. Running the Parameterized Pipeline in Jenkins
+* **Parameter Registration:** When you trigger the first build after pushing the updated pipeline code, Jenkins reads the `.jenkins/Jenkinsfile` and registers the `DEPLOY_HOST` parameter.
+* **Build with Parameters:** For all subsequent builds, you will see a **Build with Parameters** option. 
+  * You can input any target server IP (defaults to `3.109.110.109`).
+  * Jenkins will automatically SSH into that machine, fetch the latest `docker-compose.yml`, authenticate to ECR, and launch the application container on port 80.
